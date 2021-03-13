@@ -1,0 +1,9 @@
+# ide config
+.idea/
+
+# config file
+config.toml
+device.json
+
+# bin
+qqtg-bridge
