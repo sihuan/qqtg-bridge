@@ -2,6 +2,7 @@ package qq
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	mirai "github.com/Mrs4s/MiraiGo/message"
 	"github.com/sihuan/qqtg-bridge/message"
@@ -62,16 +63,27 @@ func (c ChatChan) Write(msg *message.Message) {
 		}
 	}
 	for _, imageURL := range msg.ImageURLs {
-		if resp, err := http.Get(imageURL); err == nil && resp.StatusCode == http.StatusOK {
-			if imgbyte, err := ioutil.ReadAll(resp.Body); err == nil {
-				if img, err := c.bot.UploadGroupImage(c.gid, bytes.NewReader(imgbyte)); err == nil {
-					sm.Append(img)
-				}
-			}
-
+		if img,err := c.uploadImg(imageURL); err == nil {
+			sm.Append(img)
 		}
 	}
 
 	sentMsg := c.bot.SendGroupMessage(c.gid, sm)
 	c.bot.cache.Add(msg.ID, sentMsg)
+}
+
+func (c ChatChan) uploadImg(url string) (*mirai.GroupImageElement, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New("http get not ok")
+	}
+	imgbyte, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	return  c.bot.UploadGroupImage(c.gid, bytes.NewReader(imgbyte))
 }
