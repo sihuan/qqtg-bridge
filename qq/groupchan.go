@@ -72,6 +72,54 @@ func (c ChatChan) Write(msg *message.Message) {
 		}
 	}
 
+	//if len(msg.VideoURLs) > 0 {
+	//	cqbot := &cq.CQBot{
+	//		Client: c.bot.QQClient,
+	//	}
+	//	r := cqbot.ConvertStringMessage("[CQ:video,file=http://127.0.0.1:8000/1.mp4]",true)
+	//	//e,err := cqbot.ToElement("video", map[string]string{"file":msg.VideoURLs[0],"c":"2",},true)
+	//	//if err != nil {
+	//	//	panic(err)
+	//	//}
+	//	//println(e.(mirai.IMessageElement))
+	//	sm.Append(r[0])
+	//	//sm.Append(e.(mirai.IMessageElement))
+	//}
+	//tmpVideoFile, err := ioutil.TempFile(os.TempDir(), "qqtgvideo-")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//defer tmpVideoFile.Close()
+	//tmpThumbFile, err := ioutil.TempFile(os.TempDir(), "qqtgthubm-")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//defer tmpThumbFile.Close()
+	//for _, videoURL := range msg.VideoURLs {
+	//	if resp, err := http.Get(videoURL); err == nil {
+	//		if resp.StatusCode == http.StatusOK {
+	//			io.Copy(tmpVideoFile, resp.Body)
+	//			err := ffmpeg.Input(tmpVideoFile.Name()).
+	//				Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", 1)}).
+	//				Output("pipe:", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
+	//				WithOutput(tmpThumbFile, os.Stdout).
+	//				Run()
+	//			if err != nil {
+	//				logger.Errorln(err)
+	//			} else {
+	//				v, err := c.bot.UploadGroupShortVideo(c.gid, tmpVideoFile, tmpThumbFile)
+	//				if err != nil {
+	//					fmt.Print(err)
+	//				} else {
+	//					sm.Append(v)
+	//				}
+	//			}
+	//
+	//		}
+	//		resp.Body.Close()
+	//	}
+	//}
+
 	sentMsg := c.bot.SendGroupMessage(c.gid, sm)
 	c.bot.cache.Add(msg.ID, sentMsg)
 }

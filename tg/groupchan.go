@@ -23,6 +23,7 @@ func (b *Bot) NewChatChan(chatid int64) {
 func (c ChatChan) Read() *message.Message {
 	var (
 		imageURLs []string
+		videoURLs []string
 		replyid   int64
 	)
 	msg := <-c.tempChan
@@ -41,13 +42,26 @@ func (c ChatChan) Read() *message.Message {
 			imageURLs = append(imageURLs, imageURL)
 		}
 	}
-
+	//if msg.Video != nil {
+	//	if videoURL,err := c.bot.GetFileDirectURL(msg.Video.FileID); err == nil {
+	//		videoURLs = append(videoURLs, videoURL)
+	//	}
+	//}
+	//if msg.Document != nil {
+	//	switch msg.Document.MimeType {
+	//	case "video/mp4":
+	//		if videoURL,err := c.bot.GetFileDirectURL(msg.Document.FileID); err == nil {
+	//			videoURLs = append(videoURLs, videoURL)
+	//		}
+	//	}
+	//}
 	if msg.ReplyToMessage != nil {
 		replyid = int64(msg.ReplyToMessage.MessageID)
 	}
 	return &message.Message{
 		Sender:    msg.From.FirstName,
 		ImageURLs: imageURLs,
+		VideoURLs: videoURLs,
 		ReplyID:   replyid,
 		ID:        int64(msg.MessageID),
 		Text:      msg.Text,

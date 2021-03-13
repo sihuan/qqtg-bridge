@@ -5,6 +5,7 @@ type Message struct {
 	ID        int64
 	ReplyID   int64
 	ImageURLs []string
+	VideoURLs []string
 	Text      string
 }
 
