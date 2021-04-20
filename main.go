@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/sihuan/qqtg-bridge/cache"
 	"github.com/sihuan/qqtg-bridge/config"
 	"github.com/sihuan/qqtg-bridge/message"
 	"github.com/sihuan/qqtg-bridge/qq"
@@ -13,6 +14,8 @@ func main() {
 	//os.Setenv("HTTP_PROXY", "127.0.0.1:8889")
 	//os.Setenv("HTTPS_PROXY", "127.0.0.1:8889")
 	config.Init()
+
+	cache.Init()
 
 	qq.Init()
 	qq.Login()

@@ -2,7 +2,6 @@ package tg
 
 import (
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	lru "github.com/hashicorp/golang-lru"
 	"github.com/sihuan/qqtg-bridge/config"
 	"github.com/sirupsen/logrus"
 	"log"
@@ -12,7 +11,6 @@ import (
 type Bot struct {
 	*tgbotapi.BotAPI
 	Chats map[int64]ChatChan
-	cache *lru.Cache
 	start bool
 }
 
@@ -24,10 +22,6 @@ var logger = logrus.WithField("tg", "internal")
 // 使用 config.GlobalConfig 初始化 bot
 func Init() {
 	mc := make(map[int64]ChatChan)
-	c, err := lru.New(200)
-	if err != nil {
-		logger.WithError(err).Panic("qq cache creat error")
-	}
 	bot, err := tgbotapi.NewBotAPI(config.GlobalConfig.TG.Token)
 	if err != nil {
 		log.Panic(err)
@@ -35,7 +29,6 @@ func Init() {
 	Instance = &Bot{
 		BotAPI: bot,
 		Chats:  mc,
-		cache:  c,
 		start:  false,
 	}
 }

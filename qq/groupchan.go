@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	mirai "github.com/Mrs4s/MiraiGo/message"
+	"github.com/sihuan/qqtg-bridge/cache"
 	"github.com/sihuan/qqtg-bridge/message"
 	"io/ioutil"
 	"net/http"
@@ -26,6 +27,7 @@ func (bot *Bot) NewGroupChan(gid int64) {
 
 func (c ChatChan) Read() *message.Message {
 	msg := <-c.tempChan
+	cache.QQMID2MSG.Add(int64(msg.Id), msg)
 	var (
 		text      string
 		imageURLS []string
@@ -58,18 +60,22 @@ func (c ChatChan) Write(msg *message.Message) {
 	sm := mirai.NewSendingMessage()
 	sm.Append(mirai.NewText(text))
 	if msg.ReplyID != 0 {
-		if value, ok := c.bot.cache.Get(msg.ReplyID); ok {
-			sm.Append(mirai.NewReply(value.(*mirai.GroupMessage)))
+		if value, ok := cache.TG2QQCache.Get(msg.ReplyID); ok {
+			if groupMsg, ok := cache.QQMID2MSG.Get(value.(int64)); ok {
+				sm.Append(mirai.NewReply(groupMsg.(*mirai.GroupMessage)))
+			}
 		}
 	}
 	for _, imageURL := range msg.ImageURLs {
-		if img,err := c.uploadImg(imageURL); err == nil {
+		if img, err := c.uploadImg(imageURL); err == nil {
 			sm.Append(img)
 		}
 	}
 
 	sentMsg := c.bot.SendGroupMessage(c.gid, sm)
-	c.bot.cache.Add(msg.ID, sentMsg)
+	cache.QQ2TGCache.Add(int64(sentMsg.Id), msg.ID)
+	cache.TG2QQCache.Add(msg.ID, int64(sentMsg.Id))
+	cache.QQMID2MSG.Add(int64(sentMsg.Id), sentMsg)
 }
 
 func (c ChatChan) uploadImg(url string) (*mirai.GroupImageElement, error) {
@@ -85,5 +91,5 @@ func (c ChatChan) uploadImg(url string) (*mirai.GroupImageElement, error) {
 	if err != nil {
 		return nil, err
 	}
-	return  c.bot.UploadGroupImage(c.gid, bytes.NewReader(imgbyte))
+	return c.bot.UploadGroupImage(c.gid, bytes.NewReader(imgbyte))
 }

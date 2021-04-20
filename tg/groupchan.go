@@ -3,6 +3,7 @@ package tg
 import (
 	"fmt"
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/sihuan/qqtg-bridge/cache"
 	"github.com/sihuan/qqtg-bridge/message"
 )
 
@@ -60,8 +61,8 @@ func (c ChatChan) Write(msg *message.Message) {
 	var replyTgID = 0
 
 	if msg.ReplyID != 0 {
-		if value, ok := c.bot.cache.Get(msg.ReplyID); ok {
-			replyTgID = value.(int)
+		if value, ok := cache.QQ2TGCache.Get(msg.ReplyID); ok {
+			replyTgID = int(value.(int64))
 		}
 	}
 
@@ -90,5 +91,7 @@ func (c ChatChan) Write(msg *message.Message) {
 	if err != nil {
 		logger.Errorln(err)
 	}
-	c.bot.cache.Add(msg.ID, sentMsg.MessageID)
+	cache.TG2QQCache.Add(int64(sentMsg.MessageID),msg.ID)
+	cache.QQ2TGCache.Add(msg.ID,int64(sentMsg.MessageID))
+
 }

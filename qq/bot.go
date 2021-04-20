@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/Mrs4s/MiraiGo/client"
 	mirai "github.com/Mrs4s/MiraiGo/message"
-	lru "github.com/hashicorp/golang-lru"
 	"github.com/sihuan/qqtg-bridge/config"
 	"github.com/sihuan/qqtg-bridge/utils"
 	"github.com/sirupsen/logrus"
@@ -21,7 +20,6 @@ import (
 type Bot struct {
 	*client.QQClient
 	Chats map[int64]ChatChan
-	cache *lru.Cache
 	start bool
 }
 
@@ -35,17 +33,12 @@ var logger = logrus.WithField("qq", "internal")
 // 使用 ./device.json 初始化设备信息
 func Init() {
 	mc := make(map[int64]ChatChan)
-	c, err := lru.New(200)
-	if err != nil {
-		logger.WithError(err).Panic("qq cache creat error")
-	}
 	Instance = &Bot{
 		QQClient: client.NewClient(
 			config.GlobalConfig.QQ.Account,
 			config.GlobalConfig.QQ.Password,
 		),
 		Chats: mc,
-		cache: c,
 		start: false,
 	}
 	b, _ := utils.FileExist("./device.json")
@@ -53,7 +46,7 @@ func Init() {
 		logger.Warnln("no device.json, GenRandomDevice")
 		GenRandomDevice()
 	}
-	err = client.SystemDeviceInfo.ReadJson(utils.ReadFile("./device.json"))
+	err := client.SystemDeviceInfo.ReadJson(utils.ReadFile("./device.json"))
 
 	if err != nil {
 		logger.WithError(err).Panic("device.json error")
