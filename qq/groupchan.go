@@ -37,6 +37,8 @@ func (c ChatChan) Read() *message.Message {
 		switch e := element.(type) {
 		case *mirai.TextElement:
 			text += e.Content + "\n"
+		case *mirai.FaceElement:
+			text += e.Name
 		case *mirai.ImageElement:
 			imageURLS = append(imageURLS, e.Url)
 		case *mirai.AtElement:
