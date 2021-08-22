@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"github.com/Mrs4s/MiraiGo/client"
 	mirai "github.com/Mrs4s/MiraiGo/message"
-	"github.com/sihuan/qqtg-bridge/config"
-	"github.com/sihuan/qqtg-bridge/utils"
 	"github.com/sirupsen/logrus"
 	asc2art "github.com/yinghau76/go-ascii-art"
 	"image"
 	"io/ioutil"
 	"os"
+	"qqtg-bridge/config"
+	"qqtg-bridge/utils"
 	"strings"
 )
 
@@ -194,7 +194,7 @@ func StartService() {
 
 func RouteMsg(c *client.QQClient, msg *mirai.GroupMessage) {
 	if msgChan, ok := Instance.Chats[msg.GroupCode]; ok {
-		logger.Info(msg.ToString())
+		logger.Infof("[%s]: %s", msg.Sender.Nickname, msg.ToString())
 		msgChan.tempChan <- msg
 	}
 }

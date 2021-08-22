@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	mirai "github.com/Mrs4s/MiraiGo/message"
-	"github.com/sihuan/qqtg-bridge/cache"
-	"github.com/sihuan/qqtg-bridge/message"
 	"io/ioutil"
 	"net/http"
+	"qqtg-bridge/cache"
+	"qqtg-bridge/message"
 )
 
 type ChatChan struct {
@@ -39,7 +39,7 @@ func (c ChatChan) Read() *message.Message {
 			text += e.Content + "\n"
 		case *mirai.FaceElement:
 			text += e.Name
-		case *mirai.ImageElement:
+		case *mirai.GroupImageElement:
 			imageURLS = append(imageURLS, e.Url)
 		case *mirai.AtElement:
 		case *mirai.ReplyElement:

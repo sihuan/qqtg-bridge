@@ -23,10 +23,16 @@ type ForwardConfig struct {
 	TG int64
 }
 
+type ProxyConfig struct {
+	Enable bool
+	URL string
+}
+
 type Config struct {
 	QQ       QQConfig
 	TG       TGConfig
 	Forwards []ForwardConfig
+	Proxy    ProxyConfig
 }
 
 // GlobalConfig 默认全局配置
@@ -75,7 +81,12 @@ func createSampleConfig() {
 
 [[forwards]]
   qq=2222222
-  tg=-12345`)
+  tg=-12345
+
+[proxy]
+  enable=false
+  url="127.0.0.1:7891"
+`)
 
 	if ioutil.WriteFile("config.toml", confSample, 0666) != nil {
 		log.Fatalln("Can't create a sample of config")
