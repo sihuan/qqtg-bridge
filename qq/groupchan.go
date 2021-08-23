@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"qqtg-bridge/cache"
+	"qqtg-bridge/config"
 	"qqtg-bridge/message"
 )
 
@@ -40,7 +41,13 @@ func (c ChatChan) Read() *message.Message {
 		case *mirai.FaceElement:
 			text += e.Name
 		case *mirai.GroupImageElement:
-			imageURLS = append(imageURLS, e.Url)
+			if e.Flash {
+				tmpUrl := "https://gchat.qpic.cn/gchatpic_new/%d/%d-0-%s/0?term=3"
+				tmpUrl = fmt.Sprintf(tmpUrl, config.GlobalConfig.QQ.Account, msg.GroupCode, e.ImageId[:32])
+				imageURLS = append(imageURLS, tmpUrl)
+			} else {
+				imageURLS = append(imageURLS, e.Url)
+			}
 		case *mirai.AtElement:
 		case *mirai.ReplyElement:
 			replyid = int64(e.ReplySeq)
