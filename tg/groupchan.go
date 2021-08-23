@@ -46,6 +46,9 @@ func (c ChatChan) Read() *message.Message {
 	if msg.ReplyToMessage != nil {
 		replyid = int64(msg.ReplyToMessage.MessageID)
 	}
+	if text == "" {
+		text = "不支持的类型的消息"
+	}
 	return &message.Message{
 		Sender:    msg.From.FirstName,
 		ImageURLs: imageURLs,
