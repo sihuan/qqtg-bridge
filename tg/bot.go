@@ -37,7 +37,7 @@ func Init() {
 		}
 	}
 
-	if (proxyUrl != nil) {
+	if proxyUrl != nil {
 		proxyTrans := &http.Transport{
 			Proxy: http.ProxyURL(proxyUrl),
 		}
@@ -81,7 +81,7 @@ func StartService() {
 			continue
 		}
 		if chat, ok := Instance.Chats[update.Message.Chat.ID]; ok {
-			logger.Infof("[%s]: %s", update.Message.From.FirstName, update.Message.Text)
+			logger.Infof("[%s]: %s %s", update.Message.From.FirstName, update.Message.Text, update.Message.Caption)
 			chat.tempChan <- update.Message
 		}
 	}

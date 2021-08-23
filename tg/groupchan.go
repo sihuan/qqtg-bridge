@@ -51,7 +51,7 @@ func (c ChatChan) Read() *message.Message {
 		ImageURLs: imageURLs,
 		ReplyID:   replyid,
 		ID:        int64(msg.MessageID),
-		Text:      msg.Text,
+		Text:      text,
 	}
 }
 

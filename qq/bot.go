@@ -10,6 +10,8 @@ import (
 	asc2art "github.com/yinghau76/go-ascii-art"
 	"image"
 	"io/ioutil"
+	"net/http"
+	"net/url"
 	"os"
 	"qqtg-bridge/config"
 	"qqtg-bridge/utils"
@@ -25,6 +27,9 @@ type Bot struct {
 
 // Instance Bot 实例
 var Instance *Bot
+
+// Bot 转发 Client
+var proxyClient *http.Client
 
 var logger = logrus.WithField("qq", "internal")
 
@@ -50,6 +55,26 @@ func Init() {
 
 	if err != nil {
 		logger.WithError(err).Panic("device.json error")
+	}
+
+	var proxyUrl *url.URL = nil
+	if config.GlobalConfig.Proxy.Enable {
+		proxyUrl, err = url.Parse(config.GlobalConfig.Proxy.URL)
+		if err != nil {
+			logger.WithError(err).Errorln("Configure proxy failed")
+			logger.Infoln("Try to init qq forward without proxy")
+		}
+	}
+
+	if proxyUrl != nil {
+		proxyTrans := &http.Transport{
+			Proxy: http.ProxyURL(proxyUrl),
+		}
+		proxyClient = &http.Client{
+			Transport: proxyTrans,
+		}
+	} else {
+		proxyClient = &http.Client{}
 	}
 }
 

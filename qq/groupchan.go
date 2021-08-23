@@ -81,7 +81,7 @@ func (c ChatChan) Write(msg *message.Message) {
 }
 
 func (c ChatChan) uploadImg(url string) (*mirai.GroupImageElement, error) {
-	resp, err := http.Get(url)
+	resp, err := proxyClient.Get(url)
 	if err != nil {
 		return nil, err
 	}
