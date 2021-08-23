@@ -42,7 +42,7 @@ func (c ChatChan) Read() *message.Message {
 			text += e.Name
 		case *mirai.GroupImageElement:
 			if e.Flash {
-				tmpUrl := "https://gchat.qpic.cn/gchatpic_new/%d/%d-0-%s/0?term=3"
+				tmpUrl := "https://gchat.qpic.cn/gchatpic_new/%d/%d-1234567890-%s/0?term=3"
 				tmpUrl = fmt.Sprintf(tmpUrl, config.GlobalConfig.QQ.Account, msg.GroupCode, e.ImageId[:32])
 				imageURLS = append(imageURLS, tmpUrl)
 			} else {
