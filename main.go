@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/sihuan/qqtg-bridge/cache"
-	"github.com/sihuan/qqtg-bridge/config"
-	"github.com/sihuan/qqtg-bridge/message"
-	"github.com/sihuan/qqtg-bridge/qq"
-	"github.com/sihuan/qqtg-bridge/tg"
 	"os"
 	"os/signal"
+	"qqtg-bridge/cache"
+	"qqtg-bridge/config"
+	"qqtg-bridge/message"
+	"qqtg-bridge/qq"
+	"qqtg-bridge/tg"
 )
 
 func main() {

@@ -5,10 +5,11 @@ import (
 	"errors"
 	"fmt"
 	mirai "github.com/Mrs4s/MiraiGo/message"
-	"github.com/sihuan/qqtg-bridge/cache"
-	"github.com/sihuan/qqtg-bridge/message"
 	"io/ioutil"
 	"net/http"
+	"qqtg-bridge/cache"
+	"qqtg-bridge/config"
+	"qqtg-bridge/message"
 )
 
 type ChatChan struct {
@@ -39,8 +40,18 @@ func (c ChatChan) Read() *message.Message {
 			text += e.Content + "\n"
 		case *mirai.FaceElement:
 			text += e.Name
-		case *mirai.ImageElement:
-			imageURLS = append(imageURLS, e.Url)
+		case *mirai.MusicShareElement:
+			text += e.Title + ": " + e.MusicUrl
+		case *mirai.ServiceElement:
+			text += e.SubType + " " + e.Content
+		case *mirai.GroupImageElement:
+			if e.Flash {
+				tmpUrl := "https://gchat.qpic.cn/gchatpic_new/%d/%d-1234567890-%s/0?term=3"
+				tmpUrl = fmt.Sprintf(tmpUrl, config.GlobalConfig.QQ.Account, msg.GroupCode, e.ImageId[:32])
+				imageURLS = append(imageURLS, tmpUrl)
+			} else {
+				imageURLS = append(imageURLS, e.Url)
+			}
 		case *mirai.AtElement:
 		case *mirai.ReplyElement:
 			replyid = int64(e.ReplySeq)
@@ -81,7 +92,7 @@ func (c ChatChan) Write(msg *message.Message) {
 }
 
 func (c ChatChan) uploadImg(url string) (*mirai.GroupImageElement, error) {
-	resp, err := http.Get(url)
+	resp, err := proxyClient.Get(url)
 	if err != nil {
 		return nil, err
 	}
