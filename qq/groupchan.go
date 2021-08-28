@@ -56,7 +56,7 @@ func (c ChatChan) Read() *message.Message {
 		case *mirai.ReplyElement:
 			replyid = int64(e.ReplySeq)
 		default:
-			text += "\n不支持的类型的消息"
+			text += "\n不支持的类型消息"
 		}
 	}
 	return &message.Message{
