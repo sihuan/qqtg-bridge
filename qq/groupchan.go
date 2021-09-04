@@ -10,6 +10,7 @@ import (
 	"qqtg-bridge/cache"
 	"qqtg-bridge/config"
 	"qqtg-bridge/message"
+	"strings"
 )
 
 type ChatChan struct {
@@ -43,7 +44,10 @@ func (c ChatChan) Read() *message.Message {
 		case *mirai.GroupImageElement:
 			if e.Flash {
 				tmpUrl := "https://gchat.qpic.cn/gchatpic_new/%d/%d-1234567890-%s/0?term=3"
-				tmpUrl = fmt.Sprintf(tmpUrl, config.GlobalConfig.QQ.Account, msg.GroupCode, e.ImageId[:32])
+				tmpImg := strings.Replace(e.ImageId, "-", "", -1)
+				tmpImg = strings.Replace(tmpImg, "{", "", -1)
+				tmpImg = strings.Replace(tmpImg, "}", "", -1)
+				tmpUrl = fmt.Sprintf(tmpUrl, config.GlobalConfig.QQ.Account, msg.GroupCode, tmpImg[:32])
 				imageURLS = append(imageURLS, tmpUrl)
 			} else {
 				imageURLS = append(imageURLS, e.Url)
