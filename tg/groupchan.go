@@ -66,6 +66,8 @@ func (c ChatChan) Write(msg *message.Message) {
 	if msg.ReplyID != 0 {
 		if value, ok := cache.QQ2TGCache.Get(msg.ReplyID); ok {
 			replyTgID = int(value.(int64))
+		} else {
+			text = "无法定位的回复\n" + text
 		}
 	}
 
