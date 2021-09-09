@@ -38,9 +38,9 @@ func (c ChatChan) Read() *message.Message {
 	for _, element := range msg.Elements {
 		switch e := element.(type) {
 		case *mirai.TextElement:
-			text += e.Content + "\n"
+			text += e.Content //+ "\n"
 		case *mirai.FaceElement:
-			text += e.Name
+			text += "[" + e.Name + "]"
 		case *mirai.MusicShareElement:
 			text += e.Title + ": " + e.MusicUrl
 		case *mirai.ServiceElement:
@@ -60,7 +60,7 @@ func (c ChatChan) Read() *message.Message {
 		case *mirai.ReplyElement:
 			replyid = int64(e.ReplySeq)
 		default:
-			text += "\n不支持的类型消息"
+			text += "\n不支持的类型消息\n"
 		}
 	}
 	return &message.Message{
@@ -75,17 +75,22 @@ func (c ChatChan) Read() *message.Message {
 func (c ChatChan) Write(msg *message.Message) {
 	text := fmt.Sprintf("[%s]: %s", msg.Sender, msg.Text)
 	sm := mirai.NewSendingMessage()
-	sm.Append(mirai.NewText(text))
+
 	if msg.ReplyID != 0 {
 		if value, ok := cache.TG2QQCache.Get(msg.ReplyID); ok {
 			if groupMsg, ok := cache.QQMID2MSG.Get(value.(int64)); ok {
 				sm.Append(mirai.NewReply(groupMsg.(*mirai.GroupMessage)))
 			}
+		} else {
+			text = "无法定位的回复\n" + text
 		}
 	}
+	sm.Append(mirai.NewText(text))
 	for _, imageURL := range msg.ImageURLs {
 		if img, err := c.uploadImg(imageURL); err == nil {
 			sm.Append(img)
+		} else {
+			logger.WithError(err).Errorln("Image forward failed.")
 		}
 	}
 
