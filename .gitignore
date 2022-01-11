@@ -1,6 +1,9 @@
 # ide config
 .idea/
 
+# ide build
+build/
+
 # config file
 config.toml
 device.json
