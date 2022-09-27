@@ -2,11 +2,11 @@ package tg
 
 import (
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/sihuan/qqtg-bridge/config"
 	"github.com/sirupsen/logrus"
 	"log"
 	"net/http"
 	"net/url"
-	"qqtg-bridge/config"
 )
 
 // Bot 全局 Bot
@@ -24,9 +24,9 @@ var logger = logrus.WithField("tg", "internal")
 // 使用 config.GlobalConfig 初始化 bot
 func Init() {
 	var (
-		bot			*tgbotapi.BotAPI
-		err			error
-		proxyUrl	*url.URL = nil
+		bot      *tgbotapi.BotAPI
+		err      error
+		proxyUrl *url.URL = nil
 	)
 	mc := make(map[int64]ChatChan)
 	if config.GlobalConfig.Proxy.Enable {

@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 	mirai "github.com/Mrs4s/MiraiGo/message"
+	"github.com/sihuan/qqtg-bridge/cache"
+	"github.com/sihuan/qqtg-bridge/config"
+	"github.com/sihuan/qqtg-bridge/message"
 	"io/ioutil"
 	"net/http"
-	"qqtg-bridge/cache"
-	"qqtg-bridge/config"
-	"qqtg-bridge/message"
 	"strings"
 )
 

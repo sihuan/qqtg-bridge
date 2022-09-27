@@ -4,18 +4,21 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	qrcodeTerminal "github.com/Baozisoftware/qrcode-terminal-go"
 	"github.com/Mrs4s/MiraiGo/client"
 	mirai "github.com/Mrs4s/MiraiGo/message"
+	"github.com/sihuan/qqtg-bridge/config"
+	"github.com/sihuan/qqtg-bridge/utils"
 	"github.com/sirupsen/logrus"
+	"github.com/tuotoo/qrcode"
 	asc2art "github.com/yinghau76/go-ascii-art"
 	"image"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
-	"qqtg-bridge/config"
-	"qqtg-bridge/utils"
 	"strings"
+	"time"
 )
 
 // Bot 全局 Bot
@@ -88,6 +91,60 @@ func GenRandomDevice() {
 	err := ioutil.WriteFile("device.json", client.SystemDeviceInfo.ToJson(), os.FileMode(0755))
 	if err != nil {
 		logger.WithError(err).Errorf("unable to write device.json")
+	}
+}
+
+// QrcodeLogin 扫码登陆
+func QrcodeLogin() (*client.LoginResponse, error) {
+	resp, err := Instance.FetchQRCode()
+	if err != nil {
+		return nil, err
+	}
+	fi, err := qrcode.Decode(bytes.NewReader(resp.ImageData))
+	if err != nil {
+		return nil, err
+	}
+	_ = os.WriteFile("qrcode.png", resp.ImageData, 0o644)
+	defer func() { _ = os.Remove("qrcode.png") }()
+	if Instance.Uin != 0 {
+		logger.Infof("Use mobile QQ scan QR code (qrcode.png) with ID %v login: ", Instance.Uin)
+	} else {
+		logger.Infof("Use mobile QQ scan QR code (qrcode.png) to login: ")
+	}
+	time.Sleep(time.Second)
+	qrcodeTerminal.New().Get(fi.Content).Print()
+	s, err := Instance.QueryQRCodeStatus(resp.Sig)
+	if err != nil {
+		return nil, err
+	}
+	prevState := s.State
+	for {
+		time.Sleep(time.Second)
+		s, _ = Instance.QueryQRCodeStatus(resp.Sig)
+		if s == nil {
+			continue
+		}
+		if prevState == s.State {
+			continue
+		}
+		prevState = s.State
+
+		switch s.State {
+		case client.QRCodeCanceled:
+			logger.Fatalf("Scan was canceled by user.")
+		case client.QRCodeTimeout:
+			logger.Fatalf("QR code was expired.")
+		case client.QRCodeWaitingForConfirm:
+			logger.Infof("Scan succeed, please confirm login.")
+		case client.QRCodeConfirmed:
+			resp, err := Instance.QRCodeLogin(s.LoginInfo)
+			if err != nil {
+				return nil, err
+			}
+			return resp, err
+		case client.QRCodeImageFetch, client.QRCodeWaitingForScan:
+			// ignore
+		}
 	}
 }
 
@@ -169,9 +226,11 @@ func Login() {
 					fmt.Println("please use other protocol")
 					os.Exit(2)
 				}
-				Instance.AllowSlider = false
+				logger.Infoln("Slide verify indeed, please use QR code login.")
 				Instance.Disconnect()
-				resp, err = Instance.Login()
+				Instance.Release()
+				Instance.QQClient = client.NewClientEmpty()
+				resp, err = QrcodeLogin()
 				continue
 
 			case client.OtherLoginError, client.UnknownLoginError:
@@ -214,7 +273,7 @@ func StartService() {
 	}
 
 	Instance.start = true
-	Instance.OnGroupMessage(RouteMsg)
+	Instance.GroupMessageEvent.Subscribe(RouteMsg)
 }
 
 func RouteMsg(c *client.QQClient, msg *mirai.GroupMessage) {

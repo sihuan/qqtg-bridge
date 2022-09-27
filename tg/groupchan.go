@@ -3,8 +3,8 @@ package tg
 import (
 	"fmt"
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"qqtg-bridge/cache"
-	"qqtg-bridge/message"
+	"github.com/sihuan/qqtg-bridge/cache"
+	"github.com/sihuan/qqtg-bridge/message"
 )
 
 type ChatChan struct {
@@ -96,7 +96,7 @@ func (c ChatChan) Write(msg *message.Message) {
 	if err != nil {
 		logger.WithError(err).Errorln("Send message failed")
 	}
-	cache.TG2QQCache.Add(int64(sentMsg.MessageID),msg.ID)
-	cache.QQ2TGCache.Add(msg.ID,int64(sentMsg.MessageID))
+	cache.TG2QQCache.Add(int64(sentMsg.MessageID), msg.ID)
+	cache.QQ2TGCache.Add(msg.ID, int64(sentMsg.MessageID))
 
 }
