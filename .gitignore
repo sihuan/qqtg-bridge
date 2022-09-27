@@ -8,5 +8,8 @@ build/
 config.toml
 device.json
 
+# session token
+session.token
+
 # bin
 qqtg-bridge
