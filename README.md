@@ -8,6 +8,7 @@
 2. 支持通过代理登陆 tg bot
 3. 支持转发图片和文字
 4. qq 群闪照自动转换为正常照片转发至 tg
+5. tg 动态 sticker 和 qq gif 转发
 
 ## 配置
 
@@ -45,11 +46,10 @@ title = "configuration of qqtg-bridge"
 
 ## 系统要求
 
-golang >= 1.16
+golang >= 1.18
 
 ## todo
 
 1. tg 群已发送消息编辑事件转发
 2. 撤回消息（其实不能撤回也挺好的嘛）
-3. tg 群 gif（.mp4）转发
-4. 视频和音频转发
+3. 视频和音频转发

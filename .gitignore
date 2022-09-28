@@ -5,11 +5,14 @@
 build/
 
 # config file
-config.toml
-device.json
+config.toml*
+device.json*
 
 # session token
-session.token
+session.token*
 
 # bin
 qqtg-bridge
+
+# ffmpeg cache
+gif/

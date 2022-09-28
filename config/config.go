@@ -3,8 +3,8 @@ package config
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"io/ioutil"
 	"log"
+	"os"
 )
 
 type QQConfig struct {
@@ -25,7 +25,7 @@ type ForwardConfig struct {
 
 type ProxyConfig struct {
 	Enable bool
-	URL string
+	URL    string
 }
 
 type Config struct {
@@ -88,7 +88,7 @@ func createSampleConfig() {
   url="socks5://127.0.0.1:7891"
 `)
 
-	if ioutil.WriteFile("config.toml", confSample, 0666) != nil {
+	if os.WriteFile("config.toml", confSample, 0o644) != nil {
 		log.Fatalln("Can't create a sample of config")
 	}
 
