@@ -8,7 +8,7 @@ import (
 	"github.com/sihuan/qqtg-bridge/cache"
 	"github.com/sihuan/qqtg-bridge/config"
 	"github.com/sihuan/qqtg-bridge/message"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -100,7 +100,7 @@ func (c ChatChan) Write(msg *message.Message) {
 	cache.QQMID2MSG.Add(int64(sentMsg.Id), sentMsg)
 }
 
-func (c ChatChan) uploadImg(url string) (*mirai.GroupImageElement, error) {
+func (c ChatChan) uploadImg(url string) (mirai.IMessageElement, error) {
 	resp, err := proxyClient.Get(url)
 	if err != nil {
 		return nil, err
@@ -109,9 +109,9 @@ func (c ChatChan) uploadImg(url string) (*mirai.GroupImageElement, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New("http get not ok")
 	}
-	imgbyte, err := ioutil.ReadAll(resp.Body)
+	imgbyte, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	return c.bot.UploadGroupImage(c.gid, bytes.NewReader(imgbyte))
+	return c.bot.UploadImage(mirai.Source{SourceType: mirai.SourceGroup, PrimaryID: c.gid}, bytes.NewReader(imgbyte))
 }

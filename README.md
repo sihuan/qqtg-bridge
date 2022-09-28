@@ -45,7 +45,7 @@ title = "configuration of qqtg-bridge"
 
 ## 系统要求
 
-golang >= 1.16
+golang >= 1.18
 
 ## todo
 
