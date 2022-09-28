@@ -8,9 +8,14 @@ import (
 	"github.com/sihuan/qqtg-bridge/cache"
 	"github.com/sihuan/qqtg-bridge/config"
 	"github.com/sihuan/qqtg-bridge/message"
+	"github.com/sihuan/qqtg-bridge/utils"
+	ffmpeg "github.com/u2takey/ffmpeg-go"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
+	"time"
 )
 
 type ChatChan struct {
@@ -52,9 +57,10 @@ func (c ChatChan) Read() *message.Message {
 				tmpImg = strings.Replace(tmpImg, "{", "", -1)
 				tmpImg = strings.Replace(tmpImg, "}", "", -1)
 				tmpUrl = fmt.Sprintf(tmpUrl, config.GlobalConfig.QQ.Account, msg.GroupCode, tmpImg[:32])
-				imageURLS = append(imageURLS, tmpUrl)
+				// ImageId is the filename, we need it to identify gif images
+				imageURLS = append(imageURLS, fmt.Sprintf("%s\n%s", tmpUrl, e.ImageId))
 			} else {
-				imageURLS = append(imageURLS, e.Url)
+				imageURLS = append(imageURLS, fmt.Sprintf("%s\n%s", e.Url, e.ImageId))
 			}
 		case *mirai.AtElement:
 		case *mirai.ReplyElement:
@@ -113,5 +119,36 @@ func (c ChatChan) uploadImg(url string) (mirai.IMessageElement, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// transcode
+	suffix := filepath.Ext(url)
+	name := filepath.Base(url)
+	switch suffix {
+	case ".mp4", ".webm":
+		if e, _ := utils.FileExist("gif"); !e {
+			err = os.Mkdir("gif", 0o755)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		inf := filepath.Join("gif", name)
+		outf := filepath.Join("gif", fmt.Sprintf("%s.gif", name))
+		err = os.WriteFile(inf, imgbyte, 0o755)
+		if err != nil {
+			return nil, err
+		}
+		defer os.Remove(inf)
+		err = ffmpeg.Input(inf).Output(outf).WithTimeout(time.Minute * 5).Run()
+		if err != nil {
+			return nil, err
+		}
+		imgbyte, err = os.ReadFile(outf)
+		defer os.Remove(outf)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return c.bot.UploadImage(mirai.Source{SourceType: mirai.SourceGroup, PrimaryID: c.gid}, bytes.NewReader(imgbyte))
 }

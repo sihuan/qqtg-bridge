@@ -13,3 +13,6 @@ session.token*
 
 # bin
 qqtg-bridge
+
+# ffmpeg cache
+gif/
